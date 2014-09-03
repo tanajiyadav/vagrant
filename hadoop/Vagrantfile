@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.define "hadoopmaster" do | wte | 
+    wte.vm.box = "centos_64_32"
+    wte.vm.network :private_network, ip: "10.11.1.100"
+    #namenode
+    wte.vm.network "forwarded_port", guest: 50070, host: 50070
+    #datanode
+    wte.vm.network "forwarded_port", guest: 50075, host: 50075
+    #secondary name node
+    wte.vm.network "forwarded_port", guest: 50090, host: 50090
+    #datanode address
+    wte.vm.network "forwarded_port", guest: 50010, host: 50010
+    #yarn 
+    wte.vm.network "forwarded_port", guest: 8088, host: 8088
+    wte.vm.hostname = "hadoopmaster"
+    wte.vm.provision :puppet do |puppet|
+         puppet.manifests_path = "provision/manifests"
+         puppet.manifest_file  = "hadoopmaster.pp"
+         puppet.module_path = "provision/modules"
+    end
+    wte.vm.provider :virtualbox do |vb|
+      vb.name = "hadoopmaster"
+    end
+  end
+end
